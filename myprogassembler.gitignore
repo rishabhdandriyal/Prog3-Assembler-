@@ -1,0 +1,111 @@
+#include<stdio.h>
+#include<conio.h>
+#include<string.h>
+
+void main()
+{
+char label[10],opcode[10],operand[10],symbol[10],ch,byte_character_size,a[10],ad[10];
+int diff,i=0,address,add,actual_len,finaddr,prevaddr,j=0,k=0,locctr=0X0,start=0X0,len=0,byte_operand_length=0,prevaddr1=0X0;
+char mnemonic[30][5]={"LDA","LDX","LDCH","LDL","STA","STX","STCH","STL","STSW","ADD","SUB","MUL","DIV","AND","OR","COMP","TIX","J","JLT","JGT","JEQ","JSUB","RSUB","TD","RD","WD"};
+int code[30]={0X00,0X04,0X50,0X08,0X0C,0X10,0X544,0X14,0XE8,0X18,0X1C,0X20,0X24,0X40,0X44,0X28,0X2C,0X3C,0X38,0X34,0X30,0X48,0X4C,0XE0,0XD8,0XDC};
+FILE *fp1,*fp2,*fp3,*fp4;
+fp1=fopen("input.txt","r");
+fp2=fopen("symtab.txt","w");
+fp3=fopen("out.txt","w");
+fscanf(fp1,"%s%s%s",label,opcode,operand);
+
+
+if(strcmp(opcode,"START")==0)
+{
+ start=atoi(operand);
+
+printf("Enter start add");
+scanf("%X",&locctr);
+
+prevaddr=locctr;
+
+fprintf(fp3,"\t%s\t%s\t%s\n",label,opcode,operand);
+fscanf(fp1,"%s%s%s",label,opcode,operand);
+}
+else
+locctr=0X0;
+
+
+while(strcmp(opcode,"END")!=0)
+{
+fprintf(fp3,"%0X",locctr);
+
+if(strcmp(label,"**")!=0)
+{
+
+fprintf(fp2,"%s\t%0X\n",label,locctr);
+}
+k=0;
+while(k<26)
+{
+if(strcmp(opcode,mnemonic[k])==0)
+{
+locctr=locctr+3;
+break;
+}
+
+k++;
+}
+
+if(strcmp(opcode,"WORD")==0)
+locctr=locctr+3;
+else if(strcmp(opcode,"RESW")==0)
+locctr=locctr+(3*(atoi(operand)));
+else if(strcmp(opcode,"RESB")==0)
+locctr=locctr+(atoi(operand));
+else if(strcmp(opcode,"BYTE")==0)
+{
+byte_operand_length=strlen(operand);
+if(operand=='X')
+locctr=locctr+1;
+else
+locctr=locctr+byte_operand_length-3;
+}
+
+
+
+fprintf(fp3,"\t%s\t%s\t%s\n",label,opcode,operand);
+fscanf(fp1,"%s%s%s",label,opcode,operand);
+}
+fprintf(fp3,"\t%s\t%s\t%s\n",label,opcode,operand);
+
+finaddr=locctr;
+fclose(fp1);
+fclose(fp2);
+fclose(fp3);
+
+printf("\n\nThe contents of Input Table:\n\n");
+fp1=fopen("input.txt","r");
+ch=fgetc(fp1);
+while(ch!=EOF)
+{
+    printf("%c",ch);
+    ch=fgetc(fp1);
+}
+printf("\n\nThe contents of Output Table:\n\n");
+fp3=fopen("out.txt","r");
+ch=fgetc(fp3);
+while(ch!=EOF)
+{
+    printf("%c",ch);
+    ch=fgetc(fp3);
+}
+len=finaddr-prevaddr;
+printf("\nThe length of the prog.:%d \n\n",len);
+printf("\n\nThe contents of SYMTAB :\n\n");
+    fp2=fopen("symtab.txt","r");
+    ch=fgetc(fp2);
+    while(ch!=EOF)
+    {
+
+        printf("%c",ch);
+        ch=fgetc(fp2);
+    }
+    fclose(fp2);
+    fclose(fp1);
+}
