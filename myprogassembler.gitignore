@@ -4,32 +4,27 @@
 
 void main()
 {
-char label[10],opcode[10],operand[10],symbol[10],ch,byte_character_size,a[10],ad[10];
-int diff,i=0,address,add,actual_len,finaddr,prevaddr,j=0,k=0,locctr=0X0,start=0X0,len=0,byte_operand_length=0,prevaddr1=0X0;
+char label[10],opcode[10],operand[10],symbol[10],ch,byte_character_size,a[10],ad[10],name[10];
+int st,diff,i=0,address,add,actual_len,finaddr,prevaddr,j=0,k=0,locctr=0X0,start=0X0,len=0,byte_operand_length=0,prevaddr1,lendif=0,counter=0,c=0,icounter=0;
 char mnemonic[30][5]={"LDA","LDX","LDCH","LDL","STA","STX","STCH","STL","STSW","ADD","SUB","MUL","DIV","AND","OR","COMP","TIX","J","JLT","JGT","JEQ","JSUB","RSUB","TD","RD","WD"};
-int code[30]={0X00,0X04,0X50,0X08,0X0C,0X10,0X544,0X14,0XE8,0X18,0X1C,0X20,0X24,0X40,0X44,0X28,0X2C,0X3C,0X38,0X34,0X30,0X48,0X4C,0XE0,0XD8,0XDC};
-FILE *fp1,*fp2,*fp3,*fp4;
-fp1=fopen("input.txt","r");
+char code[30][5]={"00","04","50","08","0C","10","54","14","E8","18","1C","20","24","40","44","28","2C","3C","38","34","30","48","4C","E0","D8","DC"};
+FILE *fp1,*fp2,*fp3,*fp4,*text;
+printf("Enter the name of the file:");
+scanf("%s",&name);
+fp1=fopen(name,"r");
 fp2=fopen("symtab.txt","w");
 fp3=fopen("out.txt","w");
-fscanf(fp1,"%s%s%s",label,opcode,operand);
 
+fscanf(fp1,"%s%s%X",label,opcode,&locctr);
 
 if(strcmp(opcode,"START")==0)
 {
- start=atoi(operand);
-
-printf("Enter start add");
-scanf("%X",&locctr);
-
 prevaddr=locctr;
-
-fprintf(fp3,"\t%s\t%s\t%s\n",label,opcode,operand);
+fprintf(fp3,"\t%s\t%s\t%0X\n",label,opcode,locctr);
 fscanf(fp1,"%s%s%s",label,opcode,operand);
 }
 else
 locctr=0X0;
-
 
 while(strcmp(opcode,"END")!=0)
 {
@@ -60,43 +55,42 @@ else if(strcmp(opcode,"RESB")==0)
 locctr=locctr+(atoi(operand));
 else if(strcmp(opcode,"BYTE")==0)
 {
+
 byte_operand_length=strlen(operand);
-if(operand=='X')
-locctr=locctr+1;
+if(operand[0]=='X')
+{
+    locctr=locctr+1;
+
+}
 else
 locctr=locctr+byte_operand_length-3;
 }
 
-
-
 fprintf(fp3,"\t%s\t%s\t%s\n",label,opcode,operand);
 fscanf(fp1,"%s%s%s",label,opcode,operand);
 }
-fprintf(fp3,"\t%s\t%s\t%s\n",label,opcode,operand);
+
+fprintf(fp3,"%0X\t%s\t%s\t%s\n",locctr,label,opcode,operand);
 
 finaddr=locctr;
 fclose(fp1);
 fclose(fp2);
 fclose(fp3);
 
+// DO NOT LOOK DOWN
+
 printf("\n\nThe contents of Input Table:\n\n");
-fp1=fopen("input.txt","r");
+fp1=fopen(name,"r");
 ch=fgetc(fp1);
 while(ch!=EOF)
 {
     printf("%c",ch);
     ch=fgetc(fp1);
 }
-printf("\n\nThe contents of Output Table:\n\n");
-fp3=fopen("out.txt","r");
-ch=fgetc(fp3);
-while(ch!=EOF)
-{
-    printf("%c",ch);
-    ch=fgetc(fp3);
-}
+
 len=finaddr-prevaddr;
-printf("\nThe length of the prog.:%d \n\n",len);
+
+printf("\nThe length of the prog.:%0X \n\n",len);
 printf("\n\nThe contents of SYMTAB :\n\n");
     fp2=fopen("symtab.txt","r");
     ch=fgetc(fp2);
@@ -109,7 +103,13 @@ printf("\n\nThe contents of SYMTAB :\n\n");
     fclose(fp2);
     fclose(fp1);
 
-//pass 2
+
+
+
+
+//pass 2:
+
+
 
 fp1=fopen("assmlist.txt","w");
 fp2=fopen("symtab.txt","r");
@@ -254,7 +254,7 @@ while(strcmp(opcode,"END")!=0)
 
             }
 
-printf("\n\nTh contents of output file:\n\n");
+printf("\n\nThe contents of output file:\n\n");
 fp1=fopen("assmlist.txt","r");
     ch=fgetc(fp1);
     while(ch!=EOF)
@@ -362,7 +362,7 @@ if(strcmp(symbol,"BYTE")==0||strcmp(symbol,"WORD")==0||strcmp(symbol,"RSUB")==0)
                 fprintf(text," ");
             }
       }
-      
+
      }
      fprintf(text,"\n\nE^%0X\n",prevaddr1);
 
